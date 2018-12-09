@@ -1,0 +1,98 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r warning=FALSE}
+library("EnvStats")
+```
+
+
+```{r}
+pareto.MLE <- function(X)
+{
+   n <- length(X)
+   m <- min(X)
+   a <- n/sum(log(X)-log(m))
+   return( c(location=m,shape=a) ) 
+}
+```
+
+
+```{r}
+# example. 
+set.seed(1)
+z = rpareto(n = 100, xm =  100, alpha = 1) 
+hist(z)
+```
+
+```{r}
+pareto.MLE(z)
+```
+
+```{r, warning=FALSE}
+logWage = EnvStats::rpareto(n = 130, location =  1000, shape =  1)
+CDF <- ecdf(logWage)
+plot(logWage,1-CDF(logWage), log = "xy")
+
+```
+
+
+```{r}
+df <- data.frame(lw = logWage, cdf = 1-CDF(logWage))
+```
+
+```{r}
+head(df)
+```
+
+```{r}
+logWage = EnvStats::rpareto(n = 150, location =  1000, shape =  5)
+df <- data.frame(lw = logWage, cdf = 1-CDF(logWage))
+df <- df[order(df$cdf), ]
+plot(df, log="xy")
+```
+
+```{r}
+x <- seq(100, 1000, length=1000)
+y <- dpareto(x, location = 100, shape = 1)
+plot(x, y, type="l", lwd=1)
+```
+
+```{r}
+alpha <- 3
+x <- (0:9999) / 10000
+xx <- qpareto(x, 100, alpha)
+mean(xx)
+B <- alpha / (alpha - 1)
+B
+l <- 500
+mean(xx[xx>l])
+mean(xx)
+plot(xx)
+abline(h=100, col="gray")
+abline(h=mean(xx[xx>l]))
+abline(h=l, col = "red")
+```
+
+
+
+
+
+
+
+
+## show that interpretation of alhpa is correct
+
+
+```{r}
+ 1-ppareto(c(100, 101, 105, 200, 400), 100, 4) 
+```
+
+
+
+
+
+
+
+

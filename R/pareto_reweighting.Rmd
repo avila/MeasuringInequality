@@ -1,0 +1,166 @@
+---
+title: "Re-Weighting Stratified Sampling Example"
+author: "Marcelo Avila"
+date: "29 November 2018"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+      smooth_scroll: false
+    code_folding: show
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r warning=FALSE, message=FALSE}
+library(EnvStats) # to generate random pareto data
+```
+
+
+## Generate fake data following pareto distribution 
+
+```{r}
+set.seed(42)
+shape = 2   # shape = alpha param
+location = 220 # location = lower bound
+
+popAll <- EnvStats::rpareto(12500,  location = location, shape = shape)
+(summary(popAll))
+```
+
+### define strata break points 
+
+```{r}
+b1 <- qpareto(.33, location = location, shape = shape) # lower third
+b2 <- qpareto(.66, location = location, shape = shape) # middle third
+
+# divide into 3 strata
+p1 <- popAll[popAll<=b1]
+p2 <- popAll[popAll>b1 & popAll<=b2]
+p3 <- popAll[popAll>b2]
+```
+
+
+### plot histogram 
+
+```{r, warning=FALSE}
+# plot
+hist(popAll, col=rgb(1,0,0,0.5), freq = T, breaks = 500, xlim = c(location, 2000),
+     main = "Histogram", xlab = "net wealth")
+
+# plot strata bounds in red
+abline(v = b1, lty=1, lwd=3, col = "red")
+abline(v = b2, lty=1, lwd=3, col = "red")
+
+# define means
+mean1 <- mean(p1)
+mean2 <- mean(p2)
+mean3 <- mean(p3)
+
+# plot means in blue
+abline(v=mean1, col="blue", lty=2)
+abline(v=mean2, col="blue", lty=2)
+abline(v=mean3, col="blue", lty=2)
+```
+
+
+## Stratification Method
+
+```{r}
+# define weights for disproportional Strata
+gew1 <- 1/7
+gew2 <- 2 * gew1
+gew3 <- 4 * gew1
+
+ss <- 2100     # total sample size
+s1 <- sample(p1, size = gew1 * ss)
+s2 <- sample(p2, size = gew2 * ss)
+s3 <- sample(p3, size = gew3 * ss)
+
+c(n1=length(s1), n2=length(s2), n3=length(s3)) ## size of each sampling
+```
+
+
+### Plot histogram of Samples
+
+```{r}
+breaks = 1:100000 * 20
+hist(s1, col=rgb(1,0,0,0.5), main = "histogram of Samples",
+     xlim = c(location, 2000), ylim = c(0,150), breaks = breaks,
+     xlab = "red: s1, green: s2, blue: s3") 
+     
+hist(s2, col=rgb(0,1,0,0.5), breaks = breaks, add=T)
+hist(s3, col=rgb(0,0,1,0.5), breaks = breaks, add=T)
+```
+
+**note:** the overlapping is rather an artifact of the histogram bins construction, 
+since the data itself do not overlap.
+
+```{r}
+# strata means
+c(s1mean = mean(s1), s2mean = mean(s2), s3mean= mean(s3))
+```
+
+```{r}
+# population mean
+c(mean(p1), mean(p2), mean(p3))
+```
+
+
+### Stratified Mean Estimation 
+
+```{r}
+# sample and pop sizes
+N1 <- length(p1)
+N2 <- length(p2)
+N3 <- length(p3)
+N <- sum(N1, N2, N3)
+
+# unbiased estimation 
+strataMean <- (1/N) * sum( c(N1,N2,N3 ) * c( mean(s1), mean(s2), mean(s3) ))
+
+```
+
+with strataMean being calculated as $\bar x = \frac{1}{N} \sum_h^L N_h \bar x_h$
+
+where:
+
+- $L$: count of strata, 
+- $N$: number of population observations,
+- $N_h$: number of observations in stratum $h$,
+- $\bar x_h$: mean of stratum $h$,
+- $h$ = 3 in our case.
+
+**Interesting to see:** its not the inverse of *gew* (1/7, 2/7 and 4/7) that
+gets to rewheight the averages of the strata mean into the overall mean, but the
+proportion of of observations in each strata compared to the whole poplation (n1
+/ N) and they are all around 1/3 and not related to the specific wheights
+
+
+```{r}
+c(popMean = mean(popAll),
+  strataMean = strataMean,
+  diff = mean(popAll) - strataMean,
+  percentDiff = (mean(popAll) - strataMean)/mean(popAll))
+```
+
+I suppose the rather big difference is due to the high volatility of maximum
+value of the third strata. (changing the seed gives substantially different
+estimates)
+
+```{r}
+# alternative calc
+wgt1 <- N1 / N
+wgt2 <- N2 / N
+wgt3 <- N3 / N
+strataMean2 <- sum(wgt1 * mean(s1), wgt2 * mean(s2), wgt3 * mean(s3))
+strataMean2
+
+# naive mean
+mean(c(s1, s2, s3))
+```
+
+

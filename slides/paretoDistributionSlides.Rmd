@@ -1,0 +1,110 @@
+---
+tables: yes
+output: 
+  beamer_presentation:
+    keep_tex: yes
+    theme: Antibes
+    colortheme: "dolphin"
+    fonttheme: "professionalfonts"
+header-includes:
+  - \useoutertheme{infolines}
+  - \useinnertheme{circles}
+  - \setbeameroption{show notes}
+  - \setbeamercolor{note page}{bg=white,fg=black}
+  - \setbeamercolor{note title}{bg=white!80!black, fg=black}
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#- %\setbeamercolor{note date}{parent=note title}
+```
+
+
+# Pareto Distribution
+
+## Background
+
+- Vilfredo Pareto (1897) presents a versatile functional relation that well describes wealth distribution across countries and centuries. 
+- Same concept is applied to several other fields and colloquially called
+*Pareto Principle*.
+  - 80% of land owned by 20% of individuals (revenue $\sim$ products; sales $\sim$ clients; etc)
+- Generally, it follows a *power law probability distribution*, where one measure varies constantly as an exponential of another, independently of initial values.
+  - Example: if one increases the side length of a square by $x$, its area increases by $x^2$, independently of initial area of square.
+
+\note{\begin{itemize}
+
+\item Latent sector errors in hard-drives failures
+\item Clusters of Bose–Einstein condensate near absolute zero
+
+\end{itemize}}
+
+## Functional Form
+
+The **Pareto Distribution** is defined by 
+$$f(y, \underline y, \alpha) = \frac{\alpha \underline y^\alpha}
+{y^{\alpha+1}} , \quad 0 < \underline y < y$$
+
+and
+$$F(y, \underline y, \alpha ) = 1 - \left( \frac{~\underline y~}{y}   \right)^{\alpha} , \quad 0 < \underline y < y$$
+
+where:
+
+- $y$: wealth measure
+- $\alpha$: Pareto's $\alpha$ (or *shape*/*slope parameter*)
+- $\underline y$: lower bound (or *scale parameter* or *threshhold value*)
+
+## Graphical Visualisation I
+
+![](./graphs/04_paretoDistGraphs.pdf){height="300px"}
+
+\note{
+
+Here we can see how the Probability and Cumulative Distribution looks like.
+
+- Only defined after lowerbound
+
+- very heavy right tail 
+
+- very left dense
+
+}
+
+
+## Graphical Visualisation II{.fragile}
+
+![](graphs/04_paretoDiagram.pdf){height="300px"}
+
+\note{\ttfamily{
+In order to better visualise this distribution TWO transformations are taken:
+
+1. calculate 1 - CDF\\
+2. plot on log-log scale (or log-log the data)\\
+\qquad .\\
+\qquad .
+
+HERE: lower bound = 1000 \\
+\qquad $\alpha$ = Slope in loglog
+}}
+
+
+## Properties 
+
+*Pareto's $\alpha$:*
+
+- Sloppy interpretation: for a percentage increase in $y$, the proportion of *richer* individuals by $\alpha$ percents.
+- Higher $\alpha$ values $\Rightarrow$ less inequality.^[for inequality measures satisfying the *Weak Transfers Principle* (Cowell 2011, p. 89).]
+- Several inequality indexes can be estimated based on $\alpha$.
+  - Example: Gini coefficient: $\frac{1}{2 \alpha - 1}$.
+
+*Possible problems:*
+
+- High flexibility on estimating the lower bound
+- Sensibility of $\alpha$ due to choice of the lower bound $\underline y$
+
+
+\note{\ttfamily{
+
+- For narrow excerpts of the data other distributions are "just as good"
+
+}}
