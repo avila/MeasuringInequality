@@ -101,7 +101,6 @@
 
 \useoutertheme{infolines}
 \useinnertheme{circles}
-\setbeameroption{show notes}
 \setbeamercolor{note page}{bg=white,fg=black}
 \setbeamercolor{note title}{bg=white!80!black, fg=black}
 
@@ -143,10 +142,18 @@
   \end{itemize}
 \end{itemize}
 
-\note{\begin{itemize}
+\note{\begin{itemize}\tightlist
+\item
+I am going to talk about the theoretical framework in our replication study. Since
+the focus of the study is not only to provide new information, which is usually 
+hard to come by, but also to check if we can make some more general inferences 
+about  wealth distribution in germany and adapt the top tail of the SOEP accordingly. 
+\item AS A BACKGROUND: Pareto (the same of the optimallity concept)
+\item functional form that describes well the wealth distribution accross countries and time
 
-\item Latent sector errors in hard-drives failures
-\item Clusters of Bose–Einstein condensate near absolute zero
+\item an approximate description of the distribution of incomes and wealth among the rich and the moderately rich
+\item 80/20 rule (revenue / sales; )
+\item Latent sector errors in hard-drives failures and Clusters of Bose–Einstein condensate near absolute zero
 
 \end{itemize}}
 
@@ -169,12 +176,24 @@ where:
 \item
   \(y\): wealth measure
 \item
-  \(\alpha\): Pareto's \(\alpha\) (or \emph{shape}/\emph{slope
-  parameter})
-\item
   \(\underline y\): lower bound (or \emph{scale parameter} or
   \emph{threshhold value})
+\item
+  \(\alpha\): Pareto's \(\alpha\) (or \emph{shape}/\emph{slope
+  parameter})
 \end{itemize}
+
+\note{\begin{itemize}\tightlist
+\item important here is only that
+  \item - only defined for postive values
+  \item - and above the lower-bound
+  \item - given a certain lower-bound, alpha is the important paramenter, known as
+  pareto alpha
+.\\ 
+.\\
+.\\
+The lower-bound can raise some issues, as we are going to see in the next slides
+\end{itemize}}
 
 \end{frame}
 
@@ -183,17 +202,14 @@ where:
 
 \includegraphics[width=\textwidth,height=3.125in]{./graphs/04_paretoDistGraphs.pdf}
 
-\note{
+\note{\begin{itemize}\tightlist
 
-Here we can see how the Probability and Cumulative Distribution looks like.
+\item Here we can see how the Probability and Cumulative Distribution looks like.
+\item - Only defined after lowerbound
+\item - very heavy right tail 
+\item - very left dense
 
-- Only defined after lowerbound
-
-- very heavy right tail 
-
-- very left dense
-
-}
+\end{itemize}}
 
 \end{frame}
 
@@ -211,7 +227,8 @@ In order to better visualise this distribution TWO transformations are taken:
 \qquad .
 
 HERE: lower bound = 1000 \\
-\qquad $\alpha$ = Slope in loglog
+\qquad $~~\alpha$ = Slope in loglog \\
+\qquad - Approx. interpretation: for a percentage increase in $y$, the proportion of *richer* individuals by $\alpha$ percents (NOT PERCENTAGE POINTS).
 }}
 
 \end{frame}
@@ -224,14 +241,14 @@ HERE: lower bound = 1000 \\
 \begin{itemize}
 \tightlist
 \item
-  Sloppy interpretation: for a percentage increase in \(y\), the
+  Approx. interpretation: for a percentage increase in \(y\), the
   proportion of \emph{richer} individuals by \(\alpha\) percents.
 \item
   Higher \(\alpha\) values \(\Rightarrow\) less
   inequality.\footnote<.->{for inequality measures satisfying the
-    \emph{Weak Transfers Principle} (Cowell 2011, p.~89).}
+    \emph{Weak Transfers Principle} (Cowell 2011, p.~93).}
 \item
-  Several inequality indexes can be estimated based on \(\alpha\).
+  Several inequality indices can be estimated based on \(\alpha\).
 
   \begin{itemize}
   \tightlist
@@ -251,11 +268,23 @@ HERE: lower bound = 1000 \\
   \(\underline y\)
 \end{itemize}
 
-\note{\ttfamily{
+\note{
+PROPERTIES
+\begin{itemize}\tightlist
+\item Interpretation
+\item higher value --> less inequality
+\item Inequality indices can be estimated based on $\alpha$
+\item - - - GINI coef.
 
-- For narrow excerpts of the data other distributions are "just as good"
+\end{itemize}
 
-}}
+PROBLEMS
+\begin{itemize}\tightlist
+\item High flexibility on estimating the lower bound
+\item Sensibility of $\alpha$ due to choice of the lower bound $\underline y$
+\item For narrow excerpts of the data other distributions are "just as good"
+\end{itemize}
+}
 
 \end{frame}
 

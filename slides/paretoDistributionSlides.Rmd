@@ -9,7 +9,6 @@ output:
 header-includes:
   - \useoutertheme{infolines}
   - \useinnertheme{circles}
-  - \setbeameroption{show notes}
   - \setbeamercolor{note page}{bg=white,fg=black}
   - \setbeamercolor{note title}{bg=white!80!black, fg=black}
 ---
@@ -18,6 +17,19 @@ header-includes:
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 #- %\setbeamercolor{note date}{parent=note title}
+```
+
+```{r eval=FALSE, include=FALSE}
+output: 
+  beamer_presentation:
+    keep_tex: yes
+    theme: Antibes
+    colortheme: "dolphin"
+    fonttheme: "professionalfonts"
+
+    
+      - \usetheme{metropolis}
+
 ```
 
 
@@ -32,10 +44,18 @@ knitr::opts_chunk$set(echo = TRUE)
 - Generally, it follows a *power law probability distribution*, where one measure varies constantly as an exponential of another, independently of initial values.
   - Example: if one increases the side length of a square by $x$, its area increases by $x^2$, independently of initial area of square.
 
-\note{\begin{itemize}
+\note{\begin{itemize}\tightlist
+\item
+I am going to talk about the theoretical framework in our replication study. Since
+the focus of the study is not only to provide new information, which is usually 
+hard to come by, but also to check if we can make some more general inferences 
+about  wealth distribution in germany and adapt the top tail of the SOEP accordingly. 
+\item AS A BACKGROUND: Pareto (the same of the optimallity concept)
+\item functional form that describes well the wealth distribution accross countries and time
 
-\item Latent sector errors in hard-drives failures
-\item Clusters of Bose–Einstein condensate near absolute zero
+\item an approximate description of the distribution of incomes and wealth among the rich and the moderately rich
+\item 80/20 rule (revenue / sales; )
+\item Latent sector errors in hard-drives failures and Clusters of Bose–Einstein condensate near absolute zero
 
 \end{itemize}}
 
@@ -51,24 +71,35 @@ $$F(y, \underline y, \alpha ) = 1 - \left( \frac{~\underline y~}{y}   \right)^{\
 where:
 
 - $y$: wealth measure
-- $\alpha$: Pareto's $\alpha$ (or *shape*/*slope parameter*)
 - $\underline y$: lower bound (or *scale parameter* or *threshhold value*)
+- $\alpha$: Pareto's $\alpha$ (or *shape*/*slope parameter*)
+
+
+\note{\begin{itemize}\tightlist
+\item important here is only that
+  \item - only defined for postive values
+  \item - and above the lower-bound
+  \item - given a certain lower-bound, alpha is the important paramenter, known as
+  pareto alpha
+.\\ 
+.\\
+.\\
+The lower-bound can raise some issues, as we are going to see in the next slides
+\end{itemize}}
+
 
 ## Graphical Visualisation I
 
 ![](./graphs/04_paretoDistGraphs.pdf){height="300px"}
 
-\note{
+\note{\begin{itemize}\tightlist
 
-Here we can see how the Probability and Cumulative Distribution looks like.
+\item Here we can see how the Probability and Cumulative Distribution looks like.
+\item - Only defined after lowerbound
+\item - very heavy right tail 
+\item - very left dense
 
-- Only defined after lowerbound
-
-- very heavy right tail 
-
-- very left dense
-
-}
+\end{itemize}}
 
 
 ## Graphical Visualisation II{.fragile}
@@ -84,7 +115,8 @@ In order to better visualise this distribution TWO transformations are taken:
 \qquad .
 
 HERE: lower bound = 1000 \\
-\qquad $\alpha$ = Slope in loglog
+\qquad $~~\alpha$ = Slope in loglog \\
+\qquad - Approx. interpretation: for a percentage increase in $y$, the proportion of *richer* individuals by $\alpha$ percents (NOT PERCENTAGE POINTS).
 }}
 
 
@@ -92,9 +124,9 @@ HERE: lower bound = 1000 \\
 
 *Pareto's $\alpha$:*
 
-- Sloppy interpretation: for a percentage increase in $y$, the proportion of *richer* individuals by $\alpha$ percents.
-- Higher $\alpha$ values $\Rightarrow$ less inequality.^[for inequality measures satisfying the *Weak Transfers Principle* (Cowell 2011, p. 89).]
-- Several inequality indexes can be estimated based on $\alpha$.
+- Approx. interpretation: for a percentage increase in $y$, the proportion of *richer* individuals by $\alpha$ percents.
+- Higher $\alpha$ values $\Rightarrow$ less inequality.^[for inequality measures satisfying the *Weak Transfers Principle* (Cowell 2011, p. 93).]
+- Several inequality indices can be estimated based on $\alpha$.
   - Example: Gini coefficient: $\frac{1}{2 \alpha - 1}$.
 
 *Possible problems:*
@@ -103,8 +135,21 @@ HERE: lower bound = 1000 \\
 - Sensibility of $\alpha$ due to choice of the lower bound $\underline y$
 
 
-\note{\ttfamily{
+\note{
+PROPERTIES
+\begin{itemize}\tightlist
+\item Interpretation
+\item higher value --> less inequality
+\item Inequality indices can be estimated based on $\alpha$
+\item - - - GINI coef.
 
-- For narrow excerpts of the data other distributions are "just as good"
+\end{itemize}
 
-}}
+PROBLEMS
+\begin{itemize}\tightlist
+\item High flexibility on estimating the lower bound
+\item Sensibility of $\alpha$ due to choice of the lower bound $\underline y$
+\item For narrow excerpts of the data other distributions are "just as good"
+\end{itemize}
+}
+
