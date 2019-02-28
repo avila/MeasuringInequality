@@ -2,7 +2,7 @@
 *** 4. descriptive statistics ***
 
 set more off
-use "${outpath}soep_pretest_2.dta", clear
+use "${outpath}soep_pretest_1.dta", clear
 
 
 ********************************************************************************
@@ -32,7 +32,7 @@ drop trash
 
 ********************************************************************************
 *
-*	summary statistics: net wealth SOEP (_sp) and Pretest (_pt)
+*	summary statistics: net wealth SOEP, PRETEST, SOEP+PRETEST
 *
 ********************************************************************************
 
@@ -52,7 +52,7 @@ tabstat _*_nw, s(n mean p50 p75 p95 p99 min max sd) format(%14.2f) c(v)
 local fmt_count "%10.0fc"
 local fmt_stats "%10.2fc"
 
-*** Generate summary statistics for SOEP (sp) and Pretest (pt) ***
+*** Generate summary statistics for SOEP (sp), Pretest (pt) and for both (sppt) ***
 * Note: the code loops first over '0' meaning that nw is displayed unrestricted and
 *		'1' meaning that nw is restricted on the range: nw>0 (see local option_`data').
 *		For simplicity, we pick `imp' = 1 for _1_nw_mio for nw>0
@@ -63,27 +63,30 @@ forval i=1(1)2 {
 	* generate used locals for 'estpost summarize'
 	local estpost_sp	""
 	local estpost_pt	""
-
+	local estpost_sppt	""
 	* nw full range
 	local option1_sp	"if D_pretest == 0"
 	local option1_pt	"if D_pretest == 1"
-
+	local option1_sppt	""
 	* nw>0
 	local option2_sp	"if _1_nw_mio > 0 & D_pretest == 0"
 	local option2_pt	"if _1_nw_mio > 0 & D_pretest == 1"
-
+	local option2_sppt	"if _1_nw_mio > 0"
 	* sources
 	local source_sp		"SOEP 2012 (v33.1)"
 	local source_pt		"Pretest 2017"
+	local source_sppt	"`source_sp' and `source_pt'"
+
 	
 	* generate estpost locals and variables
-	foreach data in sp pt {
+	foreach data in sp pt sppt {
 		
 		forval imp=1(1)5 {
 			local estpost_`data' "`estpost_`data'' _`imp'_nw_mio_`data'"
 			* label
 			local label_sp		"SOEP nw imp. `imp'"
 			local label_pt		"Pretest nw imp. `imp'"
+			local label_sppt	"SOEP + Pretest nw imp. `imp'"
 
 			di "`estpost_`data''"
 			gen _`imp'_nw_mio_`data' = _`imp'_nw_mio `option`i'_`data''
@@ -97,28 +100,29 @@ forval i=1(1)2 {
 	}
 
 	* generate summary statistics
-	estpost summarize `estpost_sp' `estpost_pt', detail
+	estpost summarize `estpost_sp' `estpost_pt' `estpost_sppt', detail
 
 	esttab using "${tables}summary_statistics`i'_in_mio.tex", 			///
 				replace varwidth(44) nonumber noobs nomtitles label		///
 				cells("count(fmt(`fmt_count')) mean(fmt(`fmt_stats')) p50(fmt(`fmt_stats')) p75(fmt(`fmt_stats')) p90(fmt(`fmt_stats')) p99(fmt(`fmt_stats')) min(fmt(`fmt_stats')) max(fmt(`fmt_stats'))" ) ///
 				title(Descriptive Statistics of `source_sp' and `source_pt') ///
-				addnote("Source: `source_`data''." "Note: Net wealth (nw) imputed, in mio. Euro, for simplicity rounded.")
+				addnote("Source: `source_sppt'." "Note: Net wealth (nw) imputed, in mio. Euro, for simplicity rounded.")
 				
 
 	****************************************************************************
 	*
-	* tables with applied frequency weights: SOEP, Pretest
+	* tables with applied frequency weights: SOEP, PRETEST, SOEP+PRETEST
 	*
 	****************************************************************************
 
 	
 	local W_sp_info		"SOEP: with applied cross-sectional weight (N=`=sc_N_i`i'_sp')"
 	local W_pt_info		"Pretest: with own re-weighting scheme (N=`=sc_N_i`i'_pt')"
+	local W_sppt_info 	"SOEP (cross-sectional weights, scaled down by 1\%) and Pretest (own re-weighting) (N=`=sc_N_i`i'_sppt')"
 		
-	*** SOEP (_sp) and Pretest (_pt) with frequency weights
+	*** SOEP (sp), PRETEST (pt), SOEP+PRETEST(sppt) with frequency weights
 	
-	foreach data in sp pt {
+	foreach data in sp pt sppt {
 	
 		estpost summarize `estpost_`data'' [fw=round(W_`data')] `option`i'_`data'', detail 
 
@@ -130,7 +134,7 @@ forval i=1(1)2 {
 				
 	}
 
-	drop `estpost_sp' `estpost_pt'
+	drop `estpost_sp' `estpost_pt' `estpost_sppt'
 
 }
 

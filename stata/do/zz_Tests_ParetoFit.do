@@ -59,12 +59,12 @@ foreach dat of local data {
 // test one plot for one imputation for sp
 preserve
 	drop if cdf_5_p95_sp >= .
-	// line  cdf_5_p95_sp _5_nw // not log log scale
+	line  cdf_5_p95_sp _5_nw, name(fig_in_levels)
 	
 	gen P_5_p95_sp = 1 - cdf_5_p95_sp
-	//line P_5_p95_sp _5_nw, yscale(log) xscale(log) // log log scale
+	line P_5_p95_sp _5_nw, yscale(log) xscale(log) name(fig_log_log_scale)
 	
 	// P2: divide by 20, so that 1 -> 0.05. 
 	gen P2 = P_5_p95_sp / 20
-	line P2 _5_nw, yscale(log) xscale(log) // log log scale
+	line P2 _5_nw, yscale(log) xscale(log) name(fig_log_log_scale_2)
 restore

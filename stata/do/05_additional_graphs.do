@@ -39,11 +39,11 @@ graph export "${graphs}histogram_nw_mio_sp_pt_combined.pdf", replace
 
 ********************************************************************************
 *		
-*		CDF: SOEP (_sp), Pretest (_pt), SOEP+Pretest (_sppt)
+*		CDF: SOEP (_sp) and Pretest (_pt)
 *		
 ********************************************************************************
 
-foreach data in sp pt sppt {
+foreach data in sp pt {
 	
 	if "`data'" == "sp" {
 		local cumul_title "CDF of Net Wealth of SOEP"
@@ -52,10 +52,6 @@ foreach data in sp pt sppt {
 	if "`data'" == "pt" {
 		local cumul_title "CDF of Net Wealth of Pretest"
 		local cumul_lgnd "order(1 "Pretest")"
-	}
-	if "`data'" == "sppt"  {
-		local cumul_title "CDF of Net Wealth of SOEP and Pretest"
-		local cumul_lgnd "order(1 "SOEP" 2 "Pretest")"
 	}
 
 	* prepare cumul variable
@@ -75,9 +71,6 @@ foreach data in sp pt sppt {
 	drop _1_nw_mio_cumul_`data'
 }
 
-* TEST: Probability Density Function
-//twoway	(kdensity _1_nw_mio if _1_nw_mio>1 & D_pretest==0 [fw=round(W_sp)])			///
-//		(kdensity _1_nw_mio if _1_nw_mio>1 & D_pretest==1 [fw=round(W_pt)])
 
 set graph on
 

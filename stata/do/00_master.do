@@ -69,7 +69,7 @@ do "${do}04_descriptive_stats.do"
 * 5. additional graphs
 do "${do}05_additional_graphs.do"
 
-* 6. fitting pareto distribution
+* 6. fitting pareto distribution and predict top percentiles of SOEP
 do "${do}06_fitting_pareto.do"
 
 * 7. Pareto Graphs

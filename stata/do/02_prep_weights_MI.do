@@ -1,7 +1,7 @@
 
 *** 2. Weights ***
 
-use "${outpath}soep_pretest_0.dta", clear
+use "${outpath}soep_pretest_0_MI.dta", clear
 
 
 ********************************************************************************
@@ -93,9 +93,6 @@ qui sum _1_nw if D_pretest==1 [fw=round(W_pt)]
 scalar sc_N_pt_pop = r(N)
 
 
-save "${outpath}soep_pretest_1.dta", replace
-
+save "${outpath}soep_pretest_1_MI.dta", replace
 
 ***
-
-

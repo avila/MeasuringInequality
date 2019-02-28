@@ -1,14 +1,11 @@
 
 *** 6a. save scalars to table ***
 
-
-
 clear
 set matsize 11000
 scalar m=5
 local pctile p95 p99
 local data sp pt
-
 
 
 ********** Table 1 **********
@@ -114,38 +111,19 @@ foreach pct of local pctile {
 
 	*** Latex table ***
 	listtex * using "${tables}alhpa_results_`pct'.tex", replace type rstyle(tabular) missnum() ///
-			head("\begin{tabular}{ccccccccc}" `"\hline \textit{}&	\textit{alpha\_SOEP}&	\textit{N\_SOEP}&	\textit{alpha\_Pretest}&	\textit{N\_Pretest}&	textit{threshold}&	\textit{Hausman}\\ \hline"') ///
-			foot("\hline \end{tabular}")
-
+			head("\begin{table} \centering \begin{tabular}{ccccccccc}" `"\hline \textit{}&	\textit{$\alpha_{SOEP}$}&	\textit{$N_{SOEP}$}&	\textit{$\alpha_{Pretest}$}&	\textit{$N_{Pretest}$}&	textit{threshold}&	\textit{Hausman} \\ \hline"') ///
+			foot("\hline \multicolumn{5}{l}{% \begin{minipage}{10cm}%  \vspace{.1cm} text text text \end{minipage}% } \\  \end{tabular} \caption{table title} \label{tab:reference} \end{table}")
 
 /* *** NOTE for Latex table: ***
-
-1. provide a table environment that encases the tabular environment
-	\begin{table}
-		\centering
-		....			<<-- add here
-		\end{tabular}
-		\caption{table title} \label{tab:reference}
-	\end{table}
-
-2. add to Latex in 2nd line:
-	\hline \textit{}&   \textit{$\alpha_{SOEP}$}&   \textit{$N_{SOEP}$}&   \textit{$\alpha_{Pretest}$}&    \textit{$N_{Pretest}$}&	\textit{threshold}& \textit{Hausman} \\ \hline
-	
-3. add packages:
+** add packages:
 	\usepackage[euler]{textgreek}
 	\usepackage{graphicx}
 	\usepackage{makecell}
 
-4. add \hline before the line "CI lower"
+** add \hline before the line "CI lower"
 
-5. add title and label
-
-6. save tex-file to overleaf-folder
-
-7. to place table accurately on page: 
+** to place table accurately on page: 
 	\resizebox{.5\width}{!}{\input{Seminararbeit/img/alhpa_results_p99_edited.tex}}
-
-	DONE!
 
 */
 
@@ -203,7 +181,6 @@ foreach dat of local data {
 	matrix T[12,4] = round(`=sc_ciub_p99_`dat'',.001)
 
 
-
 	* transform matrix to Stata-file and process
 	matrix list T
 	drop _all
@@ -235,259 +212,35 @@ foreach dat of local data {
 	if "$show_all" == "TRUE" {
 	l
 	}
-
+	
+	if "`dat'" == "sp" {
+	local dat_name "SOEP"
+	}
+	if "`dat'" == "pt" {
+	local dat_name "Pretest"
+	}
+	
 	*** Latex table ***
 	listtex * using "${tables}alpha_results_`dat'.tex", replace type rstyle(tabular) missnum() ///
-			head("\begin{tabular}{cccccc}" `"\hline \textit{}&	\textit{\alpha_p95}&	\textit{N_p95}&	\textit{\alpha_p99}&	\textit{N_p99}&	\textit{Hausman}\\ \hline"') ///
-			foot("\hline \end{tabular}")
+			head("\begin{table} \centering \begin{tabular}{cccccc}" `"\hline \textit{} & \textit{$\alpha_{p95}$}& \textit{$N_{p95}$} & \textit{$\alpha_{p99}$}& \textit{$N_{p99}$}& \textit{Hausman} \\ \hline"') ///
+			foot("\hline \end{tabular} \caption{Pareto's Alphas based on the `dat_name'} \label{tab:reference} \end{table}")
 
 }
 
 
 /* *** NOTE for Latex table: ***
-
-1. provide a table environment that encases the tabular environment
-	\begin{table}
-		\centering
-		....			<<-- add here
-		\end{tabular}
-		\caption{table title} \label{tab:reference}
-	\end{table}
-
-2. add to Latex in 2nd line:
-	\hline \textit{}&   \textit{$\alpha_{SOEP}$}&   \textit{$N_{SOEP}$}&   \textit{$\alpha_{Pretest}$}&    \textit{$N_{Pretest}$}&	\textit{threshold}& \textit{Hausman} \\ \hline
-	\hline \textit{}&   \textit{$\alpha_{p95}$}&    \textit{$N_{p95}$}& \textit{$\alpha_{p99}$}&    \textit{$N_{p99}$}& \textit{Hausman}\\ \hline
 	
-3. add packages:
+** add packages:
 	\usepackage[euler]{textgreek}
 	\usepackage{graphicx}
 	\usepackage{makecell}
 
-4. add \hline before the line "CI lower"
+** add \hline before the line "CI lower"
 
-5. add title and label
-
-6. save tex-file to overleaf-folder
-
-7. to place table accurately on page: 
+** to place table accurately on page: 
 	\resizebox{.5\width}{!}{\input{Seminararbeit/img/alhpa_results_p99_edited.tex}}
 
-	DONE!
-
 */
-
-
-********* Table 3 ***********
-
-********************************************************************************
-* Calculating example values (Top 5%, 1%, 0.1%)
-********************************************************************************
-* NOTE: E.g. calculate the min. net wealth that the Top 1% richest population has, 
-*		according to the fitted Pareto's Alpha based on the Pretest.
-
-* Idea: solve for ln_nw:
-* 		lnP   = alpha * ln_nw + intercept
-* 		ln_nw = 1/alpha * (lnP - intercept)
-* 		then: exp() for absolute value
-
-* corresponding variables
-* lnP: 		lnP_sp_*_ 			-- base on SOEP
-* alpha: 	sc_alpha_*_p*_pt	-- bases on Pretest
-* intercept: sc_cons_*_p*_sp	-- comes from fitting Pareto's Alpha for SOEP
-
-* Tables:
-* #1: table with p95 with alpha soep -> soep fitted
-* #2: table with p99 with alpha soep -> soep fitted
-* #3: table with p95 with alpha pretest -> soep fitted
-* #4: table with p99 with alpha pretest -> soep fitted
-
-
-* 1. Define top wealth percentages (=values of ordinate in Pareto's Distribution)
-scalar sc_top001 = 	ln(0.001)
-scalar sc_top01  = 	ln(0.01)
-scalar sc_top025 = 	ln(0.025)
-scalar sc_top05  = 	ln(0.05)
-
-* 2. Example: calculate the top 1% threshold p95, imput. 1, top 1%
-*scalar sc_nw_top1_1_p95_sp_ = exp((1/`=sc_alpha_1_p95_pt')*(`=sc_top01' - `=sc_cons_1_p95_pt'))
-*di "sc_nw_top1_1_p95_sp_ = `=sc_nw_top1_1_p95_sp_'"
-
-* 3. Generate Tables
-/* 
-Scalar Coding:
-sc_nw_top001_a_pt_`imp'_`pct'_sp_ = 
-[scalar]_[netwealth]_[top0.1%]_[alpha from pt]_[imputation_pct]_[threshold]_[estimated on soep]
- */
-
-foreach pct of local pctile {
-
-	use "${outpath}soep_pretest_2.dta", clear
-	
-	* make sure only SOEP is in dataset
-	keep if D_pretest==0
-	
-	* prepare a matrix where scalars will be saved to
-	capture matrix drop P
-	matrix P = J(7, 5 ,.)
-	matrix colnames P = var P_top_95 P_top_975 P_top_99 P_top_999
-	matrix rownames P = nw1 nw2 nw3 nw4 nw5 nw_mean N
-	matrix list P
-
-	scalar a = 1
-
-	forval imp=1(1)`=m' {
-		
-		di "+++++ `=a' +++++"
-		
-		* generate scalars
-		scalar sc_nw_top05_a_pt_`imp'_`pct'_sp_ 	= exp((1/`=sc_alpha_`imp'_`pct'_pt')*(`=sc_top05' 	- `=sc_cons_`imp'_`pct'_sp'))
-		scalar sc_nw_top025_a_pt_`imp'_`pct'_sp_	= exp((1/`=sc_alpha_`imp'_`pct'_pt')*(`=sc_top025' 	- `=sc_cons_`imp'_`pct'_sp'))
-		scalar sc_nw_top01_a_pt_`imp'_`pct'_sp_ 	= exp((1/`=sc_alpha_`imp'_`pct'_pt')*(`=sc_top01' 	- `=sc_cons_`imp'_`pct'_sp'))
-		scalar sc_nw_top001_a_pt_`imp'_`pct'_sp_	= exp((1/`=sc_alpha_`imp'_`pct'_pt')*(`=sc_top001' 	- `=sc_cons_`imp'_`pct'_sp'))
-
-		* calculate maximum net wealth (intersection with abszissa, calculate ln(nw) where lnP gets null)
-		*scalar sc_nw_max_a_pt_5_`pct'_sp_ 			= exp((1/`=sc_alpha_`imp'_`pct'_pt')*(-1000	- `=sc_cons_`imp'_`pct'_sp'))
-		
-		*** write scalars into matrix ***
-		* net wealth value
-		matrix P[`=a',2] = round( `=sc_nw_top05_a_pt_`imp'_`pct'_sp_',.001)
-		matrix P[`=a',3] = round(`=sc_nw_top025_a_pt_`imp'_`pct'_sp_',.001)
-		matrix P[`=a',4] = round( `=sc_nw_top01_a_pt_`imp'_`pct'_sp_',.001)
-		matrix P[`=a',5] = round(`=sc_nw_top001_a_pt_`imp'_`pct'_sp_',.001)
-
-		* mean of imputations
-		if `imp'==`=m' {
-		matrix P[6,2] = (1/`=m')*( `=sc_nw_top05_a_pt_1_`pct'_sp_' + `=sc_nw_top05_a_pt_2_`pct'_sp_' + `=sc_nw_top05_a_pt_3_`pct'_sp_' + `=sc_nw_top05_a_pt_4_`pct'_sp_' + `=sc_nw_top05_a_pt_5_`pct'_sp_')
-		matrix P[6,3] = (1/`=m')*(`=sc_nw_top025_a_pt_1_`pct'_sp_' + `=sc_nw_top025_a_pt_2_`pct'_sp_' + `=sc_nw_top025_a_pt_3_`pct'_sp_' + `=sc_nw_top025_a_pt_4_`pct'_sp_' + `=sc_nw_top025_a_pt_5_`pct'_sp_')
-		matrix P[6,4] = (1/`=m')*( `=sc_nw_top01_a_pt_1_`pct'_sp_' + `=sc_nw_top01_a_pt_2_`pct'_sp_' + `=sc_nw_top01_a_pt_3_`pct'_sp_' + `=sc_nw_top01_a_pt_4_`pct'_sp_' + `=sc_nw_top01_a_pt_5_`pct'_sp_')
-		matrix P[6,5] = (1/`=m')*(`=sc_nw_top001_a_pt_1_`pct'_sp_' + `=sc_nw_top001_a_pt_2_`pct'_sp_' + `=sc_nw_top001_a_pt_3_`pct'_sp_' + `=sc_nw_top001_a_pt_4_`pct'_sp_' + `=sc_nw_top001_a_pt_5_`pct'_sp_')		
-		
-		* N populations
-		matrix P[7,2] = 66000000*0.05 /* Top 5% population */
-		matrix P[7,3] = 66000000*0.025
-		matrix P[7,4] = 66000000*0.01 /* Top 1% population */
-		matrix P[7,5] = 66000000*0.001
-
-		* sum net wealth above (graphically: triangle)
-		*matrix P[8,2] = ((`=sc_nw_max_a_pt_5_`pct'_sp_' - P[5,2]) * 66000000*0.05) / 2
-		*matrix P[8,3] = ((`=sc_nw_max_a_pt_5_`pct'_sp_' - P[5,3]) * 66000000*0.025) / 2
-		*matrix P[8,4] = ((`=sc_nw_max_a_pt_5_`pct'_sp_' - P[5,4]) * 66000000*0.01) / 2
-		*matrix P[8,5] = ((`=sc_nw_max_a_pt_5_`pct'_sp_' - P[5,5]) * 66000000*0.001) / 2
-		
-		}
-		
-		if "$show_all" == "TRUE" {
-		di "+++++++++++++++++++"
-		di "sc_nw_top001_a_pt_`imp'_`pct'_sp_ 	= `=sc_nw_top001_a_pt_`imp'_`pct'_sp_'"
-		di "sc_nw_top01_a_pt_`imp'_`pct'_sp_ 	= `=sc_nw_top01_a_pt_`imp'_`pct'_sp_'"
-		di "sc_nw_top025_a_pt_`imp'_`pct'_sp_ 	= `=sc_nw_top025_a_pt_`imp'_`pct'_sp_'"
-		di "sc_nw_top05_a_pt_`imp'_`pct'_sp_ 	= `=sc_nw_top05_a_pt_`imp'_`pct'_sp_'"
-		}
-
-		scalar a = `=a' + 1
-		
-	}
-
-	* transform matrix to Stata-file and process
-	matrix list P
-	drop _all
-	svmat double P
-	matrix drop P
-
-	* rename
-	ren (P2 P3 P4 P5) (top_05 top_025 top_01 top_001)
-
-	save "${outpath}estimated_net_wealth_top5to001_`pct'_temp.dta", replace
-	clear
-
-	use "${outpath}estimated_net_wealth_top5to001_`pct'_temp.dta", clear
-
-	* prepare variables for presentation
-	replace P1 = _n
-	label values P1 nw_results
-	label variable P1 ""
-
-	qui ds
-	foreach var in `r(varlist)' {
-	
-		if "`var'" != "P1" {
-			 replace `var' = round(`var'/1000000,.001) if (_n!=7 & `var'!=.) 
-		}
-	}
-	
-	cap qui label drop nw_results
-	label define nw_results 1 "net wealth 1" 2 "net wealth 2" 3 "net wealth 3" 4 "net wealth 4" 5 "net wealth 5" 6 "mean" 7 "N"
-
-	* check
-	if "$show_all" == "TRUE" {
-	l
-	}
-
-	*** Latex table ***
-	listtex * using "${tables}estimated_net_wealth_top5to001_`pct'.tex", replace type rstyle(tabular) missnum() ///
-			head("\begin{tabular}{cccccc}" `"\hline \textit{}&	\textit{top05}&	\textit{top025}&	\textit{top01}&	\textit{top001}\\ \hline"') ///
-			foot("\hline \end{tabular}")
-
-}
-l
-
-/*	*** template ***
-	
-	/ y_top_95	/ y_top_975	/ y_top_99	/ y_top_99.9/
-nw1	/			/			/			/			/
-nw2	/			/			/			/			/
-nw3	/			/			/			/			/
-nw4	/			/			/			/			/
-nw5	/			/			/			/			/
-mean/			/			/			/			/
-N	/			/			/			/			/
-sum	/			/			/			/			/
-
-*/
-/* *** NOTE for Latex table: ***
-
-1. provide a table environment that encases the tabular environment
-	\begin{table}
-		\centering
-		....			<<-- add here
-		\end{tabular}
-		\caption{table title} \label{tab:reference}
-	\end{table}
-
-2. add to Latex in 2nd line:
-	\hline \textit{}&      \textit{Top 5\%}& \textit{Top 2.5\%}&        \textit{Top 1\%}& \textit{Top 0.1\%}\\ \hline
-	
-3. add title and label:
-	\caption{Estimated net wealths for selected top percentages}
-
-4. add note section:
-	insert right after last \hline of table and before \end{tabular}
-	...
-	\hline
-	
-	\multicolumn{5}{l}{%
-	\begin{minipage}{10cm}%
-    \vspace{.1cm}
-		Note: We estimated the Top percentages of the SOEP with $\hat{\alpha}_{Pretest}$ and a threshold at the 95th percentile of the net wealth of the SOEP.
-	\end{minipage}%
-	}\\
-	
-	\end{tabular}
-	...
-	
-5. save tex-file to overleaf-folder
-
-7. to place table accurately on page: 
-	\resizebox{.5\width}{!}{\input{Seminararbeit/img/estimated_net_wealth_top5to001_p99_edited.tex}}
-
-	DONE!
-
-*/
-
-
-
-
-
 
 
 

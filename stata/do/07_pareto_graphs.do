@@ -2,8 +2,8 @@
 *** 7. Pareto Graphs ***
 
 /* 
-Note: 12 graphs: 
-	- sp, pt, sppt
+Note: 6 graphs: 
+	- sp, pt
 	- threshold p95, p99
 	- with lfit / lfitci	
 	
@@ -14,20 +14,20 @@ Note: 12 graphs:
 
 */
 
-set graph off
+set graph on
 
 use "${outpath}soep_pretest_2.dta", clear
 
 * define threshold levels as percentiles of SOEP
 local pctile p95 p99
 
-* define datasets: SOEP (sp), Pretest (pt), SOEP+Pretest (sppt)
-local data pt sp sppt
+* define datasets: SOEP (_sp) and Pretest (_pt)
+local data pt sp
 
 * m: number of imputations
 scalar m = 5
 
-* prepare scalars with threshold values
+* prepare scalars with ln threshold values
 forval imp=1(1)`=m' {
 	foreach pc of local pctile {	
 		qui sum ln_nw_`imp'_ if D_pretest==0, d
@@ -44,7 +44,7 @@ forval imp=1(1)`=m' {
 
 ********************************************************************************
 *		
-*		Pareto Distribution: SOEP, Pretest, SOEP+Pretest
+*		Pareto Distribution: SOEP (_sp) and Pretest (_pt)
 *		
 ********************************************************************************
 
@@ -74,18 +74,8 @@ foreach dat of local data {
 		local g_col "cranberry%80"
 
 	}
-	if "`dat'" == "sppt" {
-		local g_title "SOEP and the Pretest"
-		local g_nw_opt "inlist(D_pretest,0,1)"
-		local g_src "SOEP 2012 (v33.1) and Pretest 2017"
-		local g_note ". For the SOEP we scale down the cross-sectional"
-		local g_note2 "weights by 1% and added the weights of the Pretest."
-		local g_abbrev ""
-		local g_abbrev2 " Abbrev.: {it:nw}=net wealth, {it:`dat'}=SOEP+Pretest."
-		local g_col "navy%80"
-		
-	}
 
+	
 	****************************************************************************
 	*		Pareto Distribution: Scatterplot
 	****************************************************************************
@@ -102,7 +92,7 @@ foreach dat of local data {
 	legend(row(1) order(1 "ln(nw{sub:1})" 2 "ln(nw{sub:2})" 3 "ln(nw{sub:3})" 4 "ln(nw{sub:4})" 5 "ln(nw{sub:5})")) ///
 	note("Source: `g_src'." "Note: We display all 5 imputed net wealth variables`g_note'" "`g_abbrev'`g_note2'`g_abbrev2'"))
 	
-	*graph export "${graphs}pareto_distrib_scatter_`dat'.pdf", replace
+	graph export "${graphs}pareto_distrib_scatter_`dat'.pdf", replace
 	
 	
 	
@@ -130,6 +120,8 @@ foreach dat of local data {
 	
 	restore
 	preserve
+	
+		* only nw that are larger or equal threshold
 		forval imp=1(1)5 {
 			drop if ln_nw_`imp'_ < `=sc_thres_`imp'_`pct''
 		}
@@ -177,7 +169,7 @@ foreach dat of local data {
 	*		Pareto Distribution: Scatterplot + lin. regression fit SINGLE
 	****************************************************************************
 
-	* define cosmetic locals
+	* Define cosmetic locals
 	local symbol_opt2 "jitter(.5) msize(small) msymbol(oh) mlwidth(thin) mcol(`g_col')"
 	local line_opt2 "lpattern(solid) lwidth(vthin) lcol(gs10%50)"
 	local g_all ""
@@ -188,7 +180,7 @@ foreach dat of local data {
 	
 	di in red "+++++ dataset: `dat', imputation: `imp', threshold: `pct', threshold value: `=sc_thres_`imp'_`pct''"
 			
-		* standalone graph
+		* Single graph
 		twoway  ///
 		(scatter lnP_`dat'_`imp'_ ln_nw_`imp'_ if `g_nw_opt', `symbol_opt2' sort(ln_nw_`imp'_)) 		///
 		(lfitci lnP_`dat'_`imp'_ ln_nw_`imp'_ if `g_nw_opt' & ln_nw_`imp'_ >= `=sc_thres_`imp'_`pct'', 	///
@@ -199,37 +191,18 @@ foreach dat of local data {
 		saving(`g_`imp'', replace) ///
 		legend(row(1) order(1 "ln({it:nw}{sub:{it:`imp'}})" 3 "ln({it:P}{sub:{it:`imp',`dat'}}) ~ ln({it:nw}{sub:{it:`imp'}})" 2)))
 		
-		
-		* combine above graphs (not needed anymore)
-		/*
-		local g_`imp' "${graphs}pareto_single_`dat'_`imp'_temp.gph"
-
-		twoway  ///
-		(scatter lnP_`dat'_`imp'_ ln_nw_`imp'_ if `g_nw_opt', `symbol_opt2' sort(ln_nw_`imp'_)) ///
-		(lfitci lnP_`dat'_`imp'_ ln_nw_`imp'_ if `g_nw_opt' & ln_nw_`imp'_ >= `=sc_thres_`imp'_`pct'', ///
-		ciplot(rline)) ///
-		(lfit lnP_`dat'_`imp'_ ln_nw_`imp'_ if `g_nw_opt' & ln_nw_`imp'_ >= `=sc_thres_`imp'_`pct'', /// 
-		sort(ln_nw_`imp'_) ytitle("ln(P)") xlab(, grid) xtitle("ln(nw)") ///
-		scheme(s2mono) title("ln({it:nw}{sub:{it:`imp'}})") `line_opt2' ///
-		saving(`g_`imp'', replace) ///
-		legend(off))
-		
-		if inlist("`dat'","sp","pt") {
-			local g_all "`g_all' `g_`imp''"
-		}
-		*/
 	}
 	}	
 	
 }
-
-set graph on
 
 ********************************************************************************
 *		
 *		Coefplots: SOEP vs Pretest
 *		
 ********************************************************************************
+
+/* don't use, not comparable */
 
 use "${outpath}soep_pretest_2.dta", clear
 
@@ -261,5 +234,9 @@ coefplot	(reg_1_`pct'_sp, msymbol(o) pstyle(p3)) ///
 			
 			graph export "${graphs}coefplot_alphas_`pct'.pdf", replace
 }
+
+
+set graph on
+
 
 ***
