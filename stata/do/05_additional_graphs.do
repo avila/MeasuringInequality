@@ -7,6 +7,8 @@ we plot only _1_nw_mio for simplicitly.
 */
 
 set more off
+set graph off
+
 use "${outpath}soep_pretest_2.dta", clear
 
 ********************************************************************************
@@ -18,12 +20,12 @@ use "${outpath}soep_pretest_2.dta", clear
 
 * single histogram: nw in mio, soep vs. pretest, nw >0
 forval s=0(5)5 {
-	twoway	(histogram _1_nw_mio if _1_nw_mio>`s' & D_pretest==0, width(15) color(grey%50) freq) ///
-		(histogram _1_nw_mio if _1_nw_mio>`s' & D_pretest==1, width(15) color(cranberry%35)		///
-        xtitle("Net Wealth (in Mio. Euro)")														///
-		legend(label(1 "SOEP 2012") label(2 "Pretest 2017")) scheme(s2mono) 					///
+	twoway	(histogram _1_nw_mio if _1_nw_mio>`s' & D_pt==0, width(15) color(gray%50) freq) ///
+		(histogram _1_nw_mio if _1_nw_mio>`s' & D_pt==1, width(15) color(cranberry%35)		///
+        xtitle("Net Wealth (in Mio. Euro)")													///
+		legend(label(1 "SOEP 2012") label(2 "Pretest 2017")) scheme(s2mono) 				///
 		note("Note: Net wealth in mio. Euro; values larger than `s' mio. Euro, first imputed net wealth variable.") ///
-		saving(${graphs}histogram_nw_mio_larger`s'_sp_pt.gph, replace)							///
+		saving(${graphs}histogram_nw_mio_larger`s'_sp_pt.gph, replace)						///
 		ytitle("frequency") ylabel(, format(%9.0fc)) freq)
 	graph export "${graphs}histogram_nw_mio_larger`s'_sp_pt.pdf", replace
 }
@@ -59,8 +61,8 @@ foreach data in sp pt {
 	sort _1_nw_mio_cumul_`data'
 	
 	* plot cumul
-	twoway	(line _1_nw_mio_cumul_`data' _1_nw_mio if D_pretest==0, lpattern(-) lcolor(grey))	///
-			(line _1_nw_mio_cumul_`data' _1_nw_mio if D_pretest==1, ylab(, grid) ytitle("")		///
+	twoway	(line _1_nw_mio_cumul_`data' _1_nw_mio if D_pt==0, lpattern(-) lcolor(gray))	///
+			(line _1_nw_mio_cumul_`data' _1_nw_mio if D_pt==1, ylab(, grid) ytitle("")		///
 			lpattern(--) lcolor(cranberry%75)							///
 			xlab(, grid) xtitle("Net Wealth (in Mio. Euro)") scheme(s2mono) 		///
 			title("`cumul_title'") 						///

@@ -1,5 +1,4 @@
 
-
 *** 3. Prepare Pareto Distribution ***
 
 use "${outpath}soep_pretest_1.dta", clear
@@ -24,10 +23,10 @@ forval imp=1(1)5 {
 	*		
 	****************************************************************************
 
-	sort D_pretest _`imp'_nw
-	qui sum W_pt if D_pretest==1
-	scalar sc_N = r(sum)
-	gen F_pt_`imp' = sum(W_pt)/sc_N if D_pretest==1
+	sort D_pt _`imp'_nw
+	qui sum W_pt if D_pt==1
+	scalar sc_N_`imp'_pt_ = r(sum)
+	gen F_pt_`imp' = sum(W_pt)/sc_N_`imp'_pt_ if D_pt==1
 
 	****************************************************************************
 	*		
@@ -35,13 +34,11 @@ forval imp=1(1)5 {
 	*		
 	****************************************************************************
 
-	sort D_pretest _`imp'_nw
-	qui sum W_sp if D_pretest==0
-	scalar sc_N = r(sum)
-	gen F_sp_`imp' = sum(W_sp)/sc_N if D_pretest==0
+	sort D_pt _`imp'_nw
+	qui sum W_sp if D_pt==0
+	scalar sc_N_`imp'_sp_ = r(sum)
+	gen F_sp_`imp' = sum(W_sp)/sc_N_`imp'_sp_ if D_pt==0
 }
-
-
 
 ***
 
@@ -65,8 +62,6 @@ mi import wide, imputed(nw=nw1 nw2 nw3 nw4 nw5) drop clear
 
 // not strictly necessary, but "safer" 
 mi register regular schicht 
-mi desc
-
 
 ********************************************************************************	
 *
@@ -107,11 +102,6 @@ mi passive: gen P_sp = 1 - F_sp
 mi passive: gen lnP_sp = ln(P_sp)
 
 
-if "$show_all" == "TRUE" {
-	mi d
-	br persnr _*_lnP* *ln_nw 
-}
-
 *** save dataset
 save "${outpath}soep_pretest_2_MI.dta", replace
 
@@ -128,7 +118,6 @@ save "${outpath}soep_pretest_2_MI.dta", replace
 ********************************************************************************
 * define mysuest program
 ********************************************************************************
-
 
 /* 
 USAGE: mysuest "NameOfFirstReg" "FirstReg" "NameOfSecondReg" "SecondReg"
@@ -148,31 +137,19 @@ program mysuest, eclass properties(mi)
         ereturn local title "Seemingly unrelated estimation"
 end
 
-
-
 ********************************************************************************
 * Test mi estimate
 ********************************************************************************
-
-local varlist W lnP
-foreach var in `varlist' {
-	// generate unique Weight and lnP variable for both sp and pt. 
-	cap gen `var' = `var'_sp
-	replace `var' = `var'_pt if missing(`var')
-}
 
 scalar sc_lb95 = 340000
 scalar sc_lb99 = 880000
 
 // "esampvaryok" necessary due to variation in observations across imputations.
-mi estimate, esampvaryok: reg lnP_sp ln_nw if(nw >= sc_lb95 & D_pretest == 0) 
+mi estimate, esampvaryok: reg lnP_sp ln_nw if(nw >= sc_lb95 & D_pt == 0) [iw=W]
+mi estimate, esampvaryok: reg lnP_pt ln_nw if(nw >= sc_lb95 & D_pt == 1) [iw=W]
 
-mi estimate, esampvaryok: reg lnP_sp ln_nw if(nw >= sc_lb95 & D_pretest == 0) [iw=W]
-mi estimate, esampvaryok: reg lnP_pt ln_nw if(nw >= sc_lb95 & D_pretest == 1) [iw=W]
-
-mi estimate, esampvaryok: reg lnP_sp ln_nw if(nw >= sc_lb99 & D_pretest == 0) [iw=W]
-mi estimate, esampvaryok: reg lnP_pt ln_nw if(nw >= sc_lb99 & D_pretest == 1) [iw=W]
-
+mi estimate, esampvaryok: reg lnP_sp ln_nw if(nw >= sc_lb99 & D_pt == 0) [iw=W]
+mi estimate, esampvaryok: reg lnP_pt ln_nw if(nw >= sc_lb99 & D_pt == 1) [iw=W]
 
 ********************************************************************************
 * Run mi estimate with mysuest
@@ -180,12 +157,11 @@ mi estimate, esampvaryok: reg lnP_pt ln_nw if(nw >= sc_lb99 & D_pretest == 1) [i
 
 * generate one variable for both weights, otherwise error in SUEST. 
 
-mi estimate, esampvaryok: mysuest "soep" "reg lnP_sp ln_nw if(nw >= sc_lb95 & D_pretest == 0) [iw=W]" ///
-		"pretest" "reg lnP_pt ln_nw if(nw >= sc_lb95 & D_pretest == 1) [iw=W]"
-mi estimate, esampvaryok: mysuest "soep" "reg lnP_sp ln_nw if(nw >= sc_lb99 & D_pretest == 0) [iw=W]" ///
-		"pretest" "reg lnP_pt ln_nw if(nw >= sc_lb99 & D_pretest == 1) [iw=W]"
-		* note: only iweight seems to work in mi estimate, otherwise error. 
-
+mi estimate, esampvaryok: mysuest "soep" "reg lnP_sp ln_nw if(nw >= sc_lb95 & D_pt == 0) [iw=W]" ///
+		"pretest" "reg lnP_pt ln_nw if(nw >= sc_lb95 & D_pt == 1) [iw=W]"
+mi estimate, esampvaryok: mysuest "soep" "reg lnP_sp ln_nw if(nw >= sc_lb99 & D_pt == 0) [iw=W]" ///
+		"pretest" "reg lnP_pt ln_nw if(nw >= sc_lb99 & D_pt == 1) [iw=W]"
+		* note: only iweight seems to work in mi estimate + suest, otherwise error. 
 mi estimate, vartable nocitable
 
 ********************************************************************************
@@ -193,16 +169,16 @@ mi estimate, vartable nocitable
 ********************************************************************************
 
 mi estimate (diff: [soep_mean]ln_nw - [pretest_mean]ln_nw), esampvaryok nocoef: 	///
-	mysuest "soep" "reg lnP_sp ln_nw if(nw >= sc_lb95 & D_pretest == 0) [iw=W]"      ///
-			"pretest" "reg lnP_pt ln_nw if(nw >= sc_lb95 & D_pretest == 1) [iw=W]"
+	mysuest "soep" "reg lnP_sp ln_nw if(nw >= sc_lb95 & D_pt == 0) [iw=W]"      ///
+			"pretest" "reg lnP_pt ln_nw if(nw >= sc_lb95 & D_pt == 1) [iw=W]"
 mi testtransform diff
-mi estimate, vartable nocitable
+//mi estimate, vartable nocitable
 
 
 mi estimate (diff: [soep_mean]ln_nw - [pretest_mean]ln_nw), esampvaryok nocoef: 	///
-	mysuest "soep" "reg lnP_sp ln_nw if(nw >= sc_lb99 & D_pretest == 0) [iw=W]"      ///
-			"pretest" "reg lnP_pt ln_nw if(nw >= sc_lb99 & D_pretest == 1) [iw=W]"
+	mysuest "soep" "reg lnP_sp ln_nw if(nw >= sc_lb99 & D_pt == 0) [iw=W]"      ///
+			"pretest" "reg lnP_pt ln_nw if(nw >= sc_lb99 & D_pt == 1) [iw=W]"
 mi testtransform diff
-mi estimate, vartable nocitable
+//mi estimate, vartable nocitable
 
-
+***

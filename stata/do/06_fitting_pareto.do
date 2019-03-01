@@ -36,21 +36,13 @@ global show_all "TRUE"
 
 forval imp=1(1)`=m' {
 
-
-	* Calculate Threshold Values
-	qui sum _`imp'_nw if D_pretest==0, d
-	
+	* Calculate Threshold Values (only for SOEP)
+	qui sum _`imp'_nw if D_pt==0, d
 	foreach pc of local pctile {
-		scalar sc_thres_`imp'_`pc' 		 = r(`pc')
-		scalar sc_thres_`imp'_`pc'_round = round(r(`pc'),.01)
-
-		if "$show_all" == "TRUE" {
-			di in red "threshold `pc': `=sc_thres_`imp'_`pc'_round'"
-		}
+		scalar sc_thres_`imp'_`pc' = r(`pc')
 	}
-
 	
-	* Calculate Pareto's Alpha
+	* Calculate Pareto's Alpha (SOEP and Pretest, with threshold from SOEP)
 	foreach type in sp pt {
 
 		foreach pct of local pctile {
@@ -63,7 +55,7 @@ forval imp=1(1)`=m' {
 			}
 			
 				* run regression
-				qui reg lnP_`type'_`imp'_ ln_nw_`imp'_ if (_`imp'_nw > sc_thres_`imp'_`pct' & D_pretest==`D_type') [fw=round(W_`type')]
+				qui reg lnP_`type'_`imp'_ ln_nw_`imp'_ if (_`imp'_nw > sc_thres_`imp'_`pct' & D_pt==`D_type') [fw=round(W_`type')]
 					
 					* name regression
 					estimates title: reg lnP_`type'_`imp'_ ~ ln_nw_`imp'_ (thres: `pct')
@@ -79,15 +71,24 @@ forval imp=1(1)`=m' {
 					scalar sc_r2_`imp'_`pct'_`type' = e(r2)
 					scalar sc_cons_`imp'_`pct'_`type' = _b[_cons]
 
-				
+				* Display results
 				if "$show_all" == "TRUE" {
-					di "++++++++++++++"
-					di "threshold: sc_thres_`imp'_`pct' = `=sc_thres_`imp'_`pct''"
-					di "alpha: 	sc_alpha_`imp'_`pct'_`type' = `=sc_alpha_`imp'_`pct'_`type''"
-					di "sd:    	sc_sd_`imp'_`pct'_`type' = `=sc_sd_`imp'_`pct'_`type''"	
-					di "N: 		sc_N_`imp'_`pct'_`type' = `=sc_N_`imp'_`pct'_`type''"
-					di "sse:	sc_sse_`imp'_`pct'_`type' = `=sc_sse_`imp'_`pct'_`type''"
-					di "r2:		sc_r2_`imp'_`pct'_`type' = `=sc_r2_`imp'_`pct'_`type''"
+					if "`type'" == "sp" {
+						local data "SOEP"
+					}
+					else {
+						local data "Pretest"
+					}
+					
+					di in red "+++++++++++++++++++++++"
+					di "dataset:		`data'"
+					di "threshold pctile: 	`pct'"
+					di "threshold value: 	sc_thres_`imp'_`pct' = `=sc_thres_`imp'_`pct''"
+					di "alpha:		sc_alpha_`imp'_`pct'_`type' = `=sc_alpha_`imp'_`pct'_`type''"
+					di "sd:    		sc_sd_`imp'_`pct'_`type' = `=sc_sd_`imp'_`pct'_`type''"	
+					di "N: 			sc_N_`imp'_`pct'_`type' = `=sc_N_`imp'_`pct'_`type''"
+					di "sse:		sc_sse_`imp'_`pct'_`type' = `=sc_rss_`imp'_`pct'_`type''"
+					di "r2:			sc_r2_`imp'_`pct'_`type' = `=sc_r2_`imp'_`pct'_`type''"
 				}
 		}
 	}
@@ -121,6 +122,74 @@ forval imp=1(1)`=m' {
 
 
 
+********************************************************************************
+********************************************************************************
+
+* Zuerst: SOEP (sp), p95
+
+* given: rss denotes SSE = sum of squared errors
+
+* 1. WV: within-variance (see formula x.x on page xx) 
+
+*forval imp=1(1)5 {
+	
+	*generate weighted mean of logged net wealth (wmeanlnnw)
+	qui sum W_sp if D_pt==0
+	scalar sc_wmeanlnnw_p95_sp_1 = (W_sp * ln_nw_1_)/sc_N_1_sp_
+	
+	*estimate within variance (= SSE / sum(((W*ln(nw)) - (sum( W*ln(nw) / sum(W) )))^2)	
+	estimates restore reg_1_p95_sp
+	qui scalar sc_wv_p95_sp_1 = e(rss) / sum((sum(W_sp * ln_nw_1_)/sc_w_mean_ln_nw_p95_sp_1)^2) /* TODO */
+	
+	if "$show_all" == "TRUE" {
+	di "within variancec: imp 1: `=sc_wv_p95_sp_1'; imp2: `=sc_wv_p95_sp_2'; imp3: `=sc_wv_p95_sp_3'; imp4: `=sc_wv_p95_sp_4'; imp5: `=sc_wv_p95_sp_5'" 
+	}
+	
+}
+
+
+* 2. AWV: average within-variance (according to formula x.x on page xx)
+scalar sc_awv_p95_sp_ = 1/m*((sc_swv_sp_p95_1+sc_wv_sp_p95_2+sc_wv_sp_p95_3+sc_wv_sp_p95_4+sc_wv_sp_p95_5) / sc_N_1_p95_sp)
+
+if "$show_all" == "TRUE" {
+		di " avg. within variance: `awv_p95_sp_'" 
+}
+
+
+* 3. estimate of alpha (according to formula x.x on page xx)
+qui scalar sc_avgalpha_p95_sp = 1/m*(sc_alpha_1_p95_sp + sc_alpha_2_p95_sp + sc_alpha_3_p95_sp + sc_alpha_4_p95_sp + sc_alpha_5_p95_sp)
+
+if "$show_all" == "TRUE" {
+		di "alphas: `=sc_alpha_1_p95_sp' `=sc_alpha_2_p95_sp' `=sc_alpha_3_p95_sp'' `=sc_alpha_4_p95_sp' `=sc_alpha_5_p95_sp''" 
+		_newline "avg. alpha: `=sc_avgalpha_p95_sp'"
+		}
+		
+
+* 4. BV: between-variance of the alphas (according to formula x.x on page xx)
+qui scalar sc_bv_p95_sp = 0
+
+		forval i=1(1)`=m' {
+			qui scalar sc_bv_p95_sp = sc_bv_p95_sp + (sc_alpha_`i'_p95_sp - sc_avgalpha_p95_sp)^2
+		}
+		
+		if "$show_all" == "TRUE" {		
+		di  "between variance: `=sc_bv_p95_sp'"
+		}
+
+
+* 5. TV: total variance (according to formula x.x on page xx) 			(awv + (1 + m^(-1)) * bv)
+qui scalar sc_tv_p95_sp = sc_awv_p95_sp_ + (1+m^-1) * sc_bv_p95_sp
+		if "$show_all" == "TRUE" {
+		di "total variance: `=sc_tv_p95_sp'"
+		}
+
+
+* 6.1 CI: lower bound and upper bound (according to formulas x.x and x.x on page xx)
+qui scalar sc_cilb_p95_sp = sc_avgalpha_p95_sp - invnorm(sc_alphaCI) * sqrt(sc_tv_p95_sp)
+qui scalar sc_ciub_p95_sp = sc_avgalpha_p95_sp + invnorm(sc_alphaCI) * sqrt(sc_tv_p95_sp)
+		
+********************************************************************************
+********************************************************************************
 
 
 
@@ -202,19 +271,5 @@ foreach type in sp pt {
 
 
 
-********************************************************************************
-* Save scalar results to tables
-********************************************************************************
-
-* do "${do}06a_sc_to_table.do"
-
-
-********************************************************************************
-* Predict Top Percentiles and save results to tables
-********************************************************************************
-
-do "${do}06b_predict_top_percentiles.do"
-
-
-
 ***
+

@@ -14,16 +14,16 @@ if "`c(username)'" == "Fabian" {
 	global datapath	"/Users/Fabian/Documents/DATA/STATA/"
 }
 else if "`c(username)'" == "avila" {
-	global mypath	"/home/avila/Documents/Projects/WS1819_FU/MeasuringInequality/stata/" // <-- define
+	global mypath	"/home/avila/Documents/Projects/WS1819_FU/MeasuringInequality/stata/"
 	global datapath	"/data/DatasetsSOEP"
 }
 else if "`c(username)'" == "Tobias?" {
-	global mypath	"define path accordingly"
-	global datapath	"define path accordingly"
+	global mypath	"path"
+	global datapath	"path"
 }
 else if "`c(username)'" == "Sebastian?" {
-	global mypath	"define path accordingly"
-	global datapath	"define path accordingly"
+	global mypath	"path"
+	global datapath	"path"
 }
 
 * define globals
@@ -57,7 +57,7 @@ global show_all "TRUE"
 * 1. data preparation
 do "${do}01_prep_data.do"
 
-* 2. preparation of weights (SOEP, Pretest, SOEP+Pretest)
+* 2. preparation of weights (SOEP, Pretest)
 do "${do}02_prep_weights.do"
 
 * 3. preparation of variables used for pareto distribution
@@ -72,11 +72,23 @@ do "${do}05_additional_graphs.do"
 * 6. fitting pareto distribution and predict top percentiles of SOEP
 do "${do}06_fitting_pareto.do"
 
-* 7. Pareto Graphs
-do "${do}07_pareto_graphs.do"
+* 7. Robustness Checks
+do "${do}07_robustness_checks.do"
 
-* 8. threshold-alhpa-relation
-do "${do}08_threshold_alpha.do"
+* 8. Exporting scalars as tables
+do "${do}08_sc_to_table.do"
+
+* 9. Prediction
+do "${do}09_predict_top_percentiles.do"
+
+* 10. Pareto Graphs
+do "${do}10_pareto_graphs.do"
+
+* 11. threshold-alhpa-relation
+do "${do}11_threshold_alpha.do"
+
+
+
 
 set graph on
 
