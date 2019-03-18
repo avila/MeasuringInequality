@@ -1,0 +1,20 @@
+\begin{table} \centering \begin{tabular}{ccccccc}
+\hline \textit{} &   \textit{$\alpha_{SOEP}$} &      \textit{$\N_{SOEP}$} &  \textit{$\alpha_{Pretest}$} &   \textit{$\N_{Pretest}$} & \textit{threshold} &  \textit{p-value} \\ \hline
+ln(net wealth 1&1.899&1808991&.725&303270&563800&\\
+&(.0001)&&(.0003)&&&\\
+net wealth 2&1.949&1806357&.722&306794&563570&\\
+&(.0001)&&(.0004)&&&\\
+net wealth 3&1.89&1808323&.766&304166&571000&\\
+&(.0001)&&(.0004)&&&\\
+net wealth 4&1.894&1809090&.729&310152&573000&\\
+&(.0002)&&(.0003)&&&\\
+net wealth 5&1.916&1808598&.716&304500&572000&\\
+&(.0001)&&(.0003)&&&\\
+mean of alphas&1.91&&.732&&&0\\
+&(.0028)&&(.0019)&&&\\
+CI lower (.025)&1.806&&.646&&&\\
+CI upper (.975)&2.013&&.817&&&\\
+\hline \multicolumn{5}{l}{%
+\begin{minipage}{10cm}%
+\vspace{.1cm} Source: SOEP (2012, v33.1) and Pretest 2017. \\Note: p-value represents the test result of xxx nw: net wealth, sd in parenthesis, household weights applied to SOEP, own calculated weights applied to the Pretest \end{minipage}%
+} \\  \end{tabular} \caption{Estimation Results of Pareto's Alpha (threshold at p95)} \label{tab:reference} \end{table}

@@ -1,0 +1,197 @@
+\PassOptionsToPackage{unicode=true}{hyperref} % options for packages loaded elsewhere
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[ignorenonframetext,]{beamer}
+\usepackage{pgfpages}
+\setbeamertemplate{caption}[numbered]
+\setbeamertemplate{caption label separator}{: }
+\setbeamercolor{caption name}{fg=normal text.fg}
+\beamertemplatenavigationsymbolsempty
+% Prevent slide breaks in the middle of a paragraph:
+\widowpenalties 1 10000
+\raggedbottom
+\setbeamertemplate{part page}{
+\centering
+\begin{beamercolorbox}[sep=16pt,center]{part title}
+  \usebeamerfont{part title}\insertpart\par
+\end{beamercolorbox}
+}
+\setbeamertemplate{section page}{
+\centering
+\begin{beamercolorbox}[sep=12pt,center]{part title}
+  \usebeamerfont{section title}\insertsection\par
+\end{beamercolorbox}
+}
+\setbeamertemplate{subsection page}{
+\centering
+\begin{beamercolorbox}[sep=8pt,center]{part title}
+  \usebeamerfont{subsection title}\insertsubsection\par
+\end{beamercolorbox}
+}
+\AtBeginPart{
+  \frame{\partpage}
+}
+\AtBeginSection{
+  \ifbibliography
+  \else
+    \frame{\sectionpage}
+  \fi
+}
+\AtBeginSubsection{
+  \frame{\subsectionpage}
+}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provides euro and other symbols
+\else % if luatex or xelatex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+\usetheme[]{Antibes}
+\usecolortheme{dolphin}
+\usefonttheme{professionalfonts}
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage[]{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\usepackage{hyperref}
+\hypersetup{
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\newif\ifbibliography
+\usepackage{longtable,booktabs}
+\usepackage{caption}
+% These lines are needed to make table captions work with longtable:
+\makeatletter
+\def\fnum@table{\tablename~\thetable}
+\makeatother
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+
+% set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+
+\usepackage{adjustbox}
+\usepackage{fontspec}
+\useoutertheme{infolines}
+\useinnertheme{circles}
+\setbeamercolor{note page}{bg=white,fg=black}
+\setbeamercolor{note title}{bg=white!80!black, fg=black}
+
+\date{}
+
+\begin{document}
+
+\hypertarget{do-not-inlcude-this}{%
+\section{DO NOT INLCUDE THIS}\label{do-not-inlcude-this}}
+
+TODO: dont include it
+
+\hypertarget{include-this}{%
+\section{INCLUDE THIS}\label{include-this}}
+
+\hypertarget{hausman-test}{%
+\subsection{Hausman Test}\label{hausman-test}}
+
+\begin{frame}[allowframebreaks]{Robustness Check of Pareto's alpha}
+\protect\hypertarget{robustness-check-of-paretos-alpha}{}
+
+Question: Is the Pareto distribution a \emph{good enough} approximation
+of the wealth distribution among Germany's top wealth individuals?
+
+If this is the case, one can expect that:
+
+\begin{itemize}
+\tightlist
+\item
+  the \(\alpha\) parameter is across SOEP and Pretest datasets and
+\item
+  among the chosen lower bounds, while taking the uncertainty from the
+  imputation method into account.
+\end{itemize}
+
+To check this hypothesis we perfom a generalized Hausman Test based on
+Hausman (1978) and Hausman and McFadden (1984).
+
+\end{frame}
+
+\begin{frame}[fragile]{Generalized Hausman Test}
+\protect\hypertarget{generalized-hausman-test}{}
+
+We test the stability of the estimated Pareto's \(\alpha\) by cross
+checking the obtained coefficients among a combination of each dataset,
+percentile and imputed data, via stata's \texttt{suest} post-estimation
+command.
+
+\[H_0: \hat\alpha^{data_i}_{pct_k, imp_m} = \hat\alpha^{data_j}_{pct_l, imp_m}\]
+
+where \(\textit{data}~in~\{SOEP, Pretest\} \text{ datasets}\),
+\(\textit{pct}~in~\{95th, 99th\} \text{ percentiles}\) and
+\(\textit{imp}~in~\{1, ... 5\} \text{ imputations}\).
+
+The Hausman test statistic follows
+
+\[ \frac{  \left( \hat\alpha_i - \hat\alpha_j \right)^2 }
+    {var(\hat\alpha_i) - 2  cov(\hat\alpha_i,\hat\alpha_j) 
+      + var(\hat\alpha_j)} \sim \chi^2_{1}.
+\]
+
+\note{\begin{itemize}\tightlist
+
+\item we use Hausman via suest because we are able to compare coefficients 
+of two distinct regressions and grouping the data would be problematic due to
+undefined reweighting scheme for combined dataset
+
+\end{itemize}}
+
+\end{frame}
+
+\hypertarget{test-results}{%
+\subsection{Test Results}\label{test-results}}
+
+\begin{frame}{Results I}
+\protect\hypertarget{results-i}{}
+
+\begin{table}[]
+  \centering
+  \resizebox{\textwidth}{!}{\input{tables/alhpa_results_p95.tex}}
+  \caption{Estimation of Pareto's $\alpha$ across data and imputated sets
+  for the lower bound at the 95th percentile.}
+    \label{tab:my_label}
+\end{table}
+
+\end{frame}
+
+\begin{frame}{Results II}
+\protect\hypertarget{results-ii}{}
+
+\begin{table}[]
+        \centering
+        \resizebox{\textwidth}{!}{\input{tables/alhpa_results_p99.tex}}
+        \caption{Estimation of Pareto's $\alpha$ across data and imputated sets for the 
+        lower bound at the 99th percentile.}
+        \label{tab:my_label}
+\end{table}
+
+\end{frame}
+
+\end{document}

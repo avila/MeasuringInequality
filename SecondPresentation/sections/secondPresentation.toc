@@ -1,0 +1,4 @@
+\beamer@sectionintoc {1}{DO NOT INLCUDE THIS}{1}{0}{1}
+\beamer@sectionintoc {2}{INCLUDE THIS}{2}{0}{2}
+\beamer@subsectionintoc {2}{1}{Hausman Test}{3}{0}{2}
+\beamer@subsectionintoc {2}{2}{Test Results}{6}{0}{2}

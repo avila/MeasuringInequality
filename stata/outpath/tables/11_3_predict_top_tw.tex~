@@ -1,0 +1,9 @@
+\begin{table} \centering \begin{tabular}{ccccc}
+\hline \textit{} &     \textit{{low, p95}$} &      \textit{{high, p95}$} &     \textit{{low, p99}$} &      \textit{{high, p99}$} \\ \hline
+Top 5\%&33881179.42&272382075.36&.&.\\
+Top 1\%&31876646.91&269702358.27&.004&.027\\
+Top 0.1\%&27246521.19&257479288.50&.003&.025\\
+\hline \multicolumn{5}{l}{%
+\begin{minipage}{10cm}%
+\vspace{.1cm} Source: SOEP (2012, v33.1) and Pretest 2017. \\Note: All values in trillion euros, confidence intervals (CI) calculated according to Rubin (1987), predictions based on $\alpha_{Pretest}$, thresholds at p95 and p99. \end{minipage}%
+} \\  \end{tabular} \caption{Prediction of Top Percentiles} \label{tab:reference} \end{table}

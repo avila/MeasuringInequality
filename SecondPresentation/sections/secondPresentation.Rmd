@@ -1,0 +1,123 @@
+---
+tables: yes
+output: 
+  beamer_presentation:
+    keep_tex: yes
+    theme: Antibes
+    colortheme: "dolphin"
+    fonttheme: "professionalfonts"
+    slide_level: 3
+header-includes:
+  - \usepackage{adjustbox}
+  - \useoutertheme{infolines}
+  - \useinnertheme{circles}
+  - \setbeamercolor{note page}{bg=white,fg=black}
+  - \setbeamercolor{note title}{bg=white!80!black, fg=black}
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#- %\setbeamercolor{note date}{parent=note title}
+```
+
+```{r eval=FALSE, include=FALSE}
+output: 
+  beamer_presentation:
+    keep_tex: yes
+    theme: Antibes
+    colortheme: "dolphin"
+    fonttheme: "professionalfonts"
+
+    
+      - \usetheme{metropolis}
+    
+    
+    
+"tables/alhpa_results_p95.tex"
+```
+
+# DO NOT INLCUDE THIS 
+
+TODO: dont include it
+
+# INCLUDE THIS
+
+## Hausman Test
+
+### Robustness Check of Pareto's alpha {.allowframebreaks}
+
+
+
+Question: Is the Pareto distribution a *good enough* approximation of the 
+wealth distribution among Germany's top wealth individuals?
+
+If this is the case, one can expect that: 
+
+- the $\alpha$ parameter is across SOEP and Pretest datasets and
+- among the chosen lower bounds, while taking the uncertainty from the
+imputation method into account.
+
+To check this hypothesis we perfom a generalized Hausman Test based on Hausman 
+(1978) and Hausman and McFadden (1984).
+
+
+### Generalized Hausman Test
+
+We test the stability of the estimated Pareto's $\alpha$ by cross checking the
+obtained coefficients among a combination of each dataset, percentile and
+imputed data, via stata's `suest` post-estimation command.
+
+
+$$H_0: \hat\alpha^{data_i}_{pct_k, imp_m} = \hat\alpha^{data_j}_{pct_l, imp_m}$$
+
+where $\textit{data}~in~\{SOEP, Pretest\} \text{ datasets}$, 
+$\textit{pct}~in~\{95th, 99th\} \text{ percentiles}$ and 
+$\textit{imp}~in~\{1, ... 5\} \text{ imputations}$.
+
+
+The Hausman test statistic follows
+
+$$ \frac{  \left( \hat\alpha_i - \hat\alpha_j \right)^2 }
+    {var(\hat\alpha_i) - 2  cov(\hat\alpha_i,\hat\alpha_j) 
+      + var(\hat\alpha_j)} \sim \chi^2_{1}.
+$$
+
+\note{\begin{itemize}\tightlist
+
+\item we use Hausman via suest because we are able to compare coefficients 
+of two distinct regressions and grouping the data would be problematic due to
+undefined reweighting scheme for combined dataset
+
+\end{itemize}}
+
+
+
+
+## Test Results 
+
+### Results I 
+
+
+\begin{table}[]
+  \centering
+  \resizebox{\textwidth}{!}{\input{tables/alhpa_results_p95.tex}}
+  \caption{Estimation of Pareto's $\alpha$ across data and imputated sets
+  for the lower bound at the 95th percentile.}
+    \label{tab:my_label}
+\end{table}
+
+### Results II
+
+
+\begin{table}[]
+        \centering
+        \resizebox{\textwidth}{!}{\input{tables/alhpa_results_p99.tex}}
+        \caption{Estimation of Pareto's $\alpha$ across data and imputated sets for the 
+        lower bound at the 99th percentile.}
+        \label{tab:my_label}
+\end{table}
+
+
+
+

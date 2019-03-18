@@ -1,0 +1,29 @@
+\frametitle{Generalized Hausman Test}
+\protect\hypertarget{generalized-hausman-test}{}
+
+We test the stability of the estimated Pareto's \(\alpha\) by cross
+checking the obtained coefficients among a combination of each dataset,
+percentile and imputed data, via stata's \texttt{suest} post-estimation
+command.
+
+\[H_0: \hat\alpha^{data_i}_{pct_k, imp_m} = \hat\alpha^{data_j}_{pct_l, imp_m}\]
+
+where \(\textit{data}~in~\{SOEP, Pretest\} \text{ datasets}\),
+\(\textit{pct}~in~\{95th, 99th\} \text{ percentiles}\) and
+\(\textit{imp}~in~\{1, ... 5\} \text{ imputations}\).
+
+The Hausman test statistic follows
+
+\[ \frac{  \left( \hat\alpha_i - \hat\alpha_j \right)^2 }
+    {var(\hat\alpha_i) - 2  cov(\hat\alpha_i,\hat\alpha_j)
+      + var(\hat\alpha_j)} \sim \chi^2_{1}.
+\]
+
+\note{\begin{itemize}\tightlist
+
+\item we use Hausman via suest because we are able to compare coefficients
+of two distinct regressions and grouping the data would be problematic due to
+undefined reweighting scheme for combined dataset
+
+\end{itemize}}
+
